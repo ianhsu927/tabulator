@@ -1,24 +1,24 @@
 import Module from '../../core/Module.js';
 import TableRegistry from '../../core/tools/TableRegistry.js';
 
-class Comms extends Module{
+class Comms extends Module {
 
-	constructor(table){
+	constructor(table) {
 		super(table);
 	}
 
-	initialize(){
+	initialize() {
 		this.registerTableFunction("tableComms", this.receive.bind(this));
 	}
 
-	getConnections(selectors){
+	getConnections(selectors) {
 		var connections = [],
-		connection;
+			connection;
 
 		connection = TableRegistry.lookupTable(selectors);
 
-		connection.forEach((con) =>{
-			if(this.table !== con){
+		connection.forEach((con) => {
+			if (this.table !== con) {
 				connections.push(con);
 			}
 		});
@@ -26,22 +26,22 @@ class Comms extends Module{
 		return connections;
 	}
 
-	send(selectors, module, action, data){
+	send(selectors, module, action, data) {
 		var connections = this.getConnections(selectors);
 
 		connections.forEach((connection) => {
 			connection.tableComms(this.table.element, module, action, data);
 		});
 
-		if(!connections.length && selectors){
+		if (!connections.length && selectors) {
 			console.warn("Table Connection Error - No tables matching selector found", selectors);
 		}
 	}
 
-	receive(table, module, action, data){
-		if(this.table.modExists(module)){
+	receive(table, module, action, data) {
+		if (this.table.modExists(module)) {
 			return this.table.modules[module].commsReceived(table, action, data);
-		}else{
+		} else {
 			console.warn("Inter-table Comms Error - no such module:", module);
 		}
 	}

@@ -1,6 +1,7 @@
+// 事件总线用于处理不同模块或组件之间传递消息
 export default class ExternalEventBus {
 
-	constructor(table, optionsList, debug){
+	constructor(table, optionsList, debug) {
 		this.table = table;
 		this.events = {};
 		this.optionsList = optionsList || {};
@@ -10,20 +11,20 @@ export default class ExternalEventBus {
 		this.debug = debug;
 	}
 
-	subscriptionChange(key, callback){
-		if(!this.subscriptionNotifiers[key]){
+	subscriptionChange(key, callback) {
+		if (!this.subscriptionNotifiers[key]) {
 			this.subscriptionNotifiers[key] = [];
 		}
 
 		this.subscriptionNotifiers[key].push(callback);
 
-		if(this.subscribed(key)){
+		if (this.subscribed(key)) {
 			this._notifySubscriptionChange(key, true);
 		}
 	}
 
-	subscribe(key, callback){
-		if(!this.events[key]){
+	subscribe(key, callback) {
+		if (!this.events[key]) {
 			this.events[key] = [];
 		}
 
@@ -32,25 +33,25 @@ export default class ExternalEventBus {
 		this._notifySubscriptionChange(key, true);
 	}
 
-	unsubscribe(key, callback){
+	unsubscribe(key, callback) {
 		var index;
 
-		if(this.events[key]){
-			if(callback){
+		if (this.events[key]) {
+			if (callback) {
 				index = this.events[key].findIndex((item) => {
 					return item === callback;
 				});
 
-				if(index > -1){
+				if (index > -1) {
 					this.events[key].splice(index, 1);
-				}else{
+				} else {
 					console.warn("Cannot remove event, no matching event found:", key, callback);
 					return;
 				}
-			}else{
+			} else {
 				delete this.events[key];
 			}
-		}else{
+		} else {
 			console.warn("Cannot remove event, no events set on:", key);
 			return;
 		}
@@ -58,30 +59,30 @@ export default class ExternalEventBus {
 		this._notifySubscriptionChange(key, false);
 	}
 
-	subscribed(key){
+	subscribed(key) {
 		return this.events[key] && this.events[key].length;
 	}
 
-	_notifySubscriptionChange(key, subscribed){
+	_notifySubscriptionChange(key, subscribed) {
 		var notifiers = this.subscriptionNotifiers[key];
 
-		if(notifiers){
-			notifiers.forEach((callback)=>{
+		if (notifiers) {
+			notifiers.forEach((callback) => {
 				callback(subscribed);
 			});
 		}
 	}
 
-	_dispatch(){
+	_dispatch() {
 		var args = Array.from(arguments),
-		key = args.shift(),
-		result;
+			key = args.shift(),
+			result;
 
-		if(this.events[key]){
+		if (this.events[key]) {
 			this.events[key].forEach((callback, i) => {
 				let callResult = callback.apply(this.table, args);
 
-				if(!i){
+				if (!i) {
 					result = callResult;
 				}
 			});
@@ -90,13 +91,13 @@ export default class ExternalEventBus {
 		return result;
 	}
 
-	_debugDispatch(){
+	_debugDispatch() {
 		var args = Array.from(arguments),
-		key = args[0];
+			key = args[0];
 
 		args[0] = "ExternalEvent:" + args[0];
 
-		if(this.debug === true || this.debug.includes(key)){
+		if (this.debug === true || this.debug.includes(key)) {
 			console.log(...args);
 		}
 

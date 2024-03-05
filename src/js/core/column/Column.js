@@ -4,9 +4,9 @@ import defaultOptions from './defaults/options.js';
 
 import Cell from '../cell/Cell.js';
 
-class Column extends CoreFeature{
+class Column extends CoreFeature {
 
-	constructor(def, parent){
+	constructor(def, parent) {
 		super(parent.table);
 
 		this.definition = def; //column definition
@@ -24,7 +24,7 @@ class Column extends CoreFeature{
 		this.vertAlign = ""; //vert text alignment
 
 		//multi dimensional filed handling
-		this.field ="";
+		this.field = "";
 		this.fieldStructure = "";
 		this.getFieldValue = "";
 		this.setFieldValue = "";
@@ -52,7 +52,7 @@ class Column extends CoreFeature{
 		this.component = null;
 
 		//initialize column
-		if(this.definition.columns){
+		if (this.definition.columns) {
 
 			this.isGroup = true;
 
@@ -62,21 +62,21 @@ class Column extends CoreFeature{
 			});
 
 			this.checkColumnVisibility();
-		}else{
+		} else {
 			parent.registerColumnField(this);
 		}
 
 		this._initialize();
 	}
 
-	createElement (){
+	createElement() {
 		var el = document.createElement("div");
 
 		el.classList.add("tabulator-col");
 		el.setAttribute("role", "columnheader");
 		el.setAttribute("aria-sort", "none");
 
-		switch(this.table.options.columnHeaderVertAlign){
+		switch (this.table.options.columnHeaderVertAlign) {
 			case "middle":
 				el.style.justifyContent = "center";
 				break;
@@ -88,7 +88,7 @@ class Column extends CoreFeature{
 		return el;
 	}
 
-	createGroupElement (){
+	createGroupElement() {
 		var el = document.createElement("div");
 
 		el.classList.add("tabulator-col-group-cols");
@@ -96,13 +96,13 @@ class Column extends CoreFeature{
 		return el;
 	}
 
-	mapDefinitions(){
+	mapDefinitions() {
 		var defaults = this.table.options.columnDefaults;
 
 		//map columnDefaults onto column definitions
-		if(defaults){
-			for(let key in defaults){
-				if(typeof this.definition[key] === "undefined"){
+		if (defaults) {
+			for (let key in defaults) {
+				if (typeof this.definition[key] === "undefined") {
 					this.definition[key] = defaults[key];
 				}
 			}
@@ -111,15 +111,15 @@ class Column extends CoreFeature{
 		this.definition = this.table.columnManager.optionsList.generate(Column.defaultOptionList, this.definition);
 	}
 
-	checkDefinition(){
+	checkDefinition() {
 		Object.keys(this.definition).forEach((key) => {
-			if(Column.defaultOptionList.indexOf(key) === -1){
+			if (Column.defaultOptionList.indexOf(key) === -1) {
 				console.warn("Invalid column definition option in '" + (this.field || this.definition.title) + "' column:", key);
 			}
 		});
 	}
 
-	setField(field){
+	setField(field) {
 		this.field = field;
 		this.fieldStructure = field ? (this.table.options.nestedFieldSeparator ? field.split(this.table.options.nestedFieldSeparator) : [field]) : [];
 		this.getFieldValue = this.fieldStructure.length > 1 ? this._getNestedData : this._getFlatData;
@@ -127,36 +127,36 @@ class Column extends CoreFeature{
 	}
 
 	//register column position with column manager
-	registerColumnPosition(column){
+	registerColumnPosition(column) {
 		this.parent.registerColumnPosition(column);
 	}
 
 	//register column position with column manager
-	registerColumnField(column){
+	registerColumnField(column) {
 		this.parent.registerColumnField(column);
 	}
 
 	//trigger position registration
-	reRegisterPosition(){
-		if(this.isGroup){
-			this.columns.forEach(function(column){
+	reRegisterPosition() {
+		if (this.isGroup) {
+			this.columns.forEach(function (column) {
 				column.reRegisterPosition();
 			});
-		}else{
+		} else {
 			this.registerColumnPosition(this);
 		}
 	}
 
 	//build header element
-	_initialize(){
+	_initialize() {
 		var def = this.definition;
 
-		while(this.element.firstChild) this.element.removeChild(this.element.firstChild);
+		while (this.element.firstChild) this.element.removeChild(this.element.firstChild);
 
-		if(def.headerVertical){
+		if (def.headerVertical) {
 			this.element.classList.add("tabulator-col-vertical");
 
-			if(def.headerVertical === "flip"){
+			if (def.headerVertical === "flip") {
 				this.element.classList.add("tabulator-col-vertical-flip");
 			}
 		}
@@ -165,9 +165,9 @@ class Column extends CoreFeature{
 
 		this.element.appendChild(this.contentElement);
 
-		if(this.isGroup){
+		if (this.isGroup) {
 			this._buildGroupHeader();
-		}else{
+		} else {
 			this._buildColumnHeader();
 		}
 
@@ -175,29 +175,29 @@ class Column extends CoreFeature{
 	}
 
 	//build header element for header
-	_buildColumnHeader(){
+	_buildColumnHeader() {
 		var def = this.definition;
 
 		this.dispatch("column-layout", this);
 
 		//set column visibility
-		if(typeof def.visible != "undefined"){
-			if(def.visible){
+		if (typeof def.visible != "undefined") {
+			if (def.visible) {
 				this.show(true);
-			}else{
+			} else {
 				this.hide(true);
 			}
 		}
 
 		//assign additional css classes to column header
-		if(def.cssClass){
+		if (def.cssClass) {
 			var classNames = def.cssClass.split(" ");
 			classNames.forEach((className) => {
 				this.element.classList.add(className);
 			});
 		}
 
-		if(def.field){
+		if (def.field) {
 			this.element.setAttribute("tabulator-field", def.field);
 		}
 
@@ -207,8 +207,8 @@ class Column extends CoreFeature{
 		if (def.maxInitialWidth) {
 			this.maxInitialWidth = parseInt(def.maxInitialWidth);
 		}
-		
-		if(def.maxWidth){
+
+		if (def.maxWidth) {
 			this.setMaxWidth(parseInt(def.maxWidth));
 		}
 
@@ -221,7 +221,7 @@ class Column extends CoreFeature{
 		this.titleElement.style.textAlign = this.definition.headerHozAlign;
 	}
 
-	_buildColumnHeaderContent(){
+	_buildColumnHeaderContent() {
 		var contentElement = document.createElement("div");
 		contentElement.classList.add("tabulator-col-content");
 
@@ -238,17 +238,17 @@ class Column extends CoreFeature{
 	}
 
 	//build title element of column
-	_buildColumnHeaderTitle(){
+	_buildColumnHeaderTitle() {
 		var def = this.definition;
 
 		var titleHolderElement = document.createElement("div");
 		titleHolderElement.classList.add("tabulator-col-title");
-		
-		if(def.headerWordWrap){
+
+		if (def.headerWordWrap) {
 			titleHolderElement.classList.add("tabulator-col-title-wrap");
 		}
 
-		if(def.editableTitle){
+		if (def.editableTitle) {
 			var titleElement = document.createElement("input");
 			titleElement.classList.add("tabulator-title-editor");
 
@@ -264,20 +264,20 @@ class Column extends CoreFeature{
 
 			titleHolderElement.appendChild(titleElement);
 
-			if(def.field){
+			if (def.field) {
 				this.langBind("columns|" + def.field, (text) => {
 					titleElement.value = text || (def.title || "&nbsp;");
 				});
-			}else{
-				titleElement.value  = def.title || "&nbsp;";
+			} else {
+				titleElement.value = def.title || "&nbsp;";
 			}
 
-		}else{
-			if(def.field){
+		} else {
+			if (def.field) {
 				this.langBind("columns|" + def.field, (text) => {
 					this._formatColumnHeaderTitle(titleHolderElement, text || (def.title || "&nbsp;"));
 				});
-			}else{
+			} else {
 				this._formatColumnHeaderTitle(titleHolderElement, def.title || "&nbsp;");
 			}
 		}
@@ -285,16 +285,16 @@ class Column extends CoreFeature{
 		return titleHolderElement;
 	}
 
-	_formatColumnHeaderTitle(el, title){
+	_formatColumnHeaderTitle(el, title) {
 		var contents = this.chain("column-format", [this, title, el], null, () => {
 			return title;
 		});
 
-		switch(typeof contents){
+		switch (typeof contents) {
 			case "object":
-				if(contents instanceof Node){
+				if (contents instanceof Node) {
 					el.appendChild(contents);
-				}else{
+				} else {
 					el.innerHTML = "";
 					console.warn("Format Error - Title formatter has returned a type of object, the only valid formatter object return is an instance of Node, the formatter returned:", contents);
 				}
@@ -308,13 +308,13 @@ class Column extends CoreFeature{
 	}
 
 	//build header element for column group
-	_buildGroupHeader(){
+	_buildGroupHeader() {
 		this.element.classList.add("tabulator-col-group");
 		this.element.setAttribute("role", "columngroup");
 		this.element.setAttribute("aria-title", this.definition.title);
 
 		//asign additional css classes to column header
-		if(this.definition.cssClass){
+		if (this.definition.cssClass) {
 			var classNames = this.definition.cssClass.split(" ");
 			classNames.forEach((className) => {
 				this.element.classList.add(className);
@@ -327,24 +327,24 @@ class Column extends CoreFeature{
 	}
 
 	//flat field lookup
-	_getFlatData(data){
+	_getFlatData(data) {
 		return data[this.field];
 	}
 
 	//nested field lookup
-	_getNestedData(data){
-		var dataObj = data,
-		structure = this.fieldStructure,
-		length = structure.length,
-		output;
+	_getNestedData(data) {
+		var dataObj = data;
+		var structure = this.fieldStructure;
+		var length = structure.length;
+		var output;
 
-		for(let i = 0; i < length; i++){
+		for (let i = 0; i < length; i++) {
 
 			dataObj = dataObj[structure[i]];
 
 			output = dataObj;
 
-			if(!dataObj){
+			if (!dataObj) {
 				break;
 			}
 		}
@@ -353,27 +353,27 @@ class Column extends CoreFeature{
 	}
 
 	//flat field set
-	_setFlatData(data, value){
-		if(this.field){
+	_setFlatData(data, value) {
+		if (this.field) {
 			data[this.field] = value;
 		}
 	}
 
 	//nested field set
-	_setNestedData(data, value){
-		var dataObj = data,
-		structure = this.fieldStructure,
-		length = structure.length;
+	_setNestedData(data, value) {
+		var dataObj = data;
+		var structure = this.fieldStructure;
+		var length = structure.length;
 
-		for(let i = 0; i < length; i++){
+		for (let i = 0; i < length; i++) {
 
-			if(i == length -1){
+			if (i == length - 1) {
 				dataObj[structure[i]] = value;
-			}else{
-				if(!dataObj[structure[i]]){
-					if(typeof value !== "undefined"){
+			} else {
+				if (!dataObj[structure[i]]) {
+					if (typeof value !== "undefined") {
 						dataObj[structure[i]] = {};
-					}else{
+					} else {
 						break;
 					}
 				}
@@ -384,19 +384,19 @@ class Column extends CoreFeature{
 	}
 
 	//attach column to this group
-	attachColumn(column){
-		if(this.groupElement){
+	attachColumn(column) {
+		if (this.groupElement) {
 			this.columns.push(column);
 			this.groupElement.appendChild(column.getElement());
 
 			column.columnRendered();
-		}else{
+		} else {
 			console.warn("Column Warning - Column being attached to another column instead of column group");
 		}
 	}
 
 	//vertically align header in column
-	verticalAlign(alignment, height){
+	verticalAlign(alignment, height) {
 
 		//calculate height of column header and group holder element
 		var parentHeight = this.parent.isGroup ? this.parent.getGroupElement().clientHeight : (height || this.parent.getHeadersElement().clientHeight);
@@ -406,7 +406,7 @@ class Column extends CoreFeature{
 
 		this.dispatch("column-height", this, this.element.style.height);
 
-		if(this.isGroup){
+		if (this.isGroup) {
 			this.groupElement.style.minHeight = (parentHeight - this.contentElement.offsetHeight) + "px";
 		}
 
@@ -419,19 +419,19 @@ class Column extends CoreFeature{
 		// 	}
 		// }
 
-		this.columns.forEach(function(column){
+		this.columns.forEach(function (column) {
 			column.verticalAlign(alignment);
 		});
 	}
 
 	//clear vertical alignment
-	clearVerticalAlign(){
+	clearVerticalAlign() {
 		this.element.style.paddingTop = "";
 		this.element.style.height = "";
 		this.element.style.minHeight = "";
 		this.groupElement.style.minHeight = "";
 
-		this.columns.forEach(function(column){
+		this.columns.forEach(function (column) {
 			column.clearVerticalAlign();
 		});
 
@@ -440,17 +440,17 @@ class Column extends CoreFeature{
 
 	//// Retrieve Column Information ////
 	//return column header element
-	getElement(){
+	getElement() {
 		return this.element;
 	}
 
 	//return column group element
-	getGroupElement(){
+	getGroupElement() {
 		return this.groupElement;
 	}
 
 	//return field name
-	getField(){
+	getField() {
 		return this.field;
 	}
 
@@ -459,68 +459,68 @@ class Column extends CoreFeature{
 	}
 
 	//return the first column in a group
-	getFirstColumn(){
-		if(!this.isGroup){
+	getFirstColumn() {
+		if (!this.isGroup) {
 			return this;
-		}else{
-			if(this.columns.length){
+		} else {
+			if (this.columns.length) {
 				return this.columns[0].getFirstColumn();
-			}else{
+			} else {
 				return false;
 			}
 		}
 	}
 
 	//return the last column in a group
-	getLastColumn(){
-		if(!this.isGroup){
+	getLastColumn() {
+		if (!this.isGroup) {
 			return this;
-		}else{
-			if(this.columns.length){
-				return this.columns[this.columns.length -1].getLastColumn();
-			}else{
+		} else {
+			if (this.columns.length) {
+				return this.columns[this.columns.length - 1].getLastColumn();
+			} else {
 				return false;
 			}
 		}
 	}
 
 	//return all columns in a group
-	getColumns(traverse){
+	getColumns(traverse) {
 		var columns = [];
 
-		if(traverse){
+		if (traverse) {
 			this.columns.forEach((column) => {
 				columns.push(column);
-					
+
 				columns = columns.concat(column.getColumns(true));
 			});
-		}else{
+		} else {
 			columns = this.columns;
 		}
-		
+
 		return columns;
 	}
 
 	//return all columns in a group
-	getCells(){
+	getCells() {
 		return this.cells;
 	}
 
 	//retrieve the top column in a group of columns
-	getTopColumn(){
-		if(this.parent.isGroup){
+	getTopColumn() {
+		if (this.parent.isGroup) {
 			return this.parent.getTopColumn();
-		}else{
+		} else {
 			return this;
 		}
 	}
 
 	//return column definition object
-	getDefinition(updateBranches){
+	getDefinition(updateBranches) {
 		var colDefs = [];
 
-		if(this.isGroup && updateBranches){
-			this.columns.forEach(function(column){
+		if (this.isGroup && updateBranches) {
+			this.columns.forEach(function (column) {
 				colDefs.push(column.getDefinition(true));
 			});
 
@@ -531,39 +531,39 @@ class Column extends CoreFeature{
 	}
 
 	//////////////////// Actions ////////////////////
-	checkColumnVisibility(){
+	checkColumnVisibility() {
 		var visible = false;
 
-		this.columns.forEach(function(column){
-			if(column.visible){
+		this.columns.forEach(function (column) {
+			if (column.visible) {
 				visible = true;
 			}
 		});
 
-		if(visible){
+		if (visible) {
 			this.show();
 			this.dispatchExternal("columnVisibilityChanged", this.getComponent(), false);
-		}else{
+		} else {
 			this.hide();
 		}
 	}
 
 	//show column
-	show(silent, responsiveToggle){
-		if(!this.visible){
+	show(silent, responsiveToggle) {
+		if (!this.visible) {
 			this.visible = true;
 
 			this.element.style.display = "";
 
-			if(this.parent.isGroup){
+			if (this.parent.isGroup) {
 				this.parent.checkColumnVisibility();
 			}
 
-			this.cells.forEach(function(cell){
+			this.cells.forEach(function (cell) {
 				cell.show();
 			});
 
-			if(!this.isGroup && this.width === null){
+			if (!this.isGroup && this.width === null) {
 				this.reinitializeWidth();
 			}
 
@@ -571,96 +571,96 @@ class Column extends CoreFeature{
 
 			this.dispatch("column-show", this, responsiveToggle);
 
-			if(!silent){
+			if (!silent) {
 				this.dispatchExternal("columnVisibilityChanged", this.getComponent(), true);
 			}
 
-			if(this.parent.isGroup){
+			if (this.parent.isGroup) {
 				this.parent.matchChildWidths();
 			}
 
-			if(!this.silent){
+			if (!this.silent) {
 				this.table.columnManager.rerenderColumns();
 			}
 		}
 	}
 
 	//hide column
-	hide(silent, responsiveToggle){
-		if(this.visible){
+	hide(silent, responsiveToggle) {
+		if (this.visible) {
 			this.visible = false;
 
 			this.element.style.display = "none";
 
 			this.table.columnManager.verticalAlignHeaders();
 
-			if(this.parent.isGroup){
+			if (this.parent.isGroup) {
 				this.parent.checkColumnVisibility();
 			}
 
-			this.cells.forEach(function(cell){
+			this.cells.forEach(function (cell) {
 				cell.hide();
 			});
 
 			this.dispatch("column-hide", this, responsiveToggle);
 
-			if(!silent){
+			if (!silent) {
 				this.dispatchExternal("columnVisibilityChanged", this.getComponent(), false);
 			}
 
-			if(this.parent.isGroup){
+			if (this.parent.isGroup) {
 				this.parent.matchChildWidths();
 			}
 
-			if(!this.silent){
+			if (!this.silent) {
 				this.table.columnManager.rerenderColumns();
 			}
 		}
 	}
 
-	matchChildWidths(){
+	matchChildWidths() {
 		var childWidth = 0;
 
-		if(this.contentElement && this.columns.length){
-			this.columns.forEach(function(column){
-				if(column.visible){
+		if (this.contentElement && this.columns.length) {
+			this.columns.forEach(function (column) {
+				if (column.visible) {
 					childWidth += column.getWidth();
 				}
 			});
 
 			this.contentElement.style.maxWidth = (childWidth - 1) + "px";
 
-			if(this.parent.isGroup){
+			if (this.parent.isGroup) {
 				this.parent.matchChildWidths();
 			}
 		}
 	}
 
-	removeChild(child){
+	removeChild(child) {
 		var index = this.columns.indexOf(child);
 
-		if(index > -1){
+		if (index > -1) {
 			this.columns.splice(index, 1);
 		}
 
-		if(!this.columns.length){
+		if (!this.columns.length) {
 			this.delete();
 		}
 	}
 
-	setWidth(width){
+	setWidth(width) {
 		this.widthFixed = true;
 		this.setWidthActual(width);
 	}
 
-	setWidthActual(width){
-		if(isNaN(width)){
-			width = Math.floor((this.table.element.clientWidth/100) * parseInt(width));
+	setWidthActual(width) {
+		if (isNaN(width)) {
+			width = Math.floor((this.table.element.clientWidth / 100) * parseInt(width));
 		}
 
 		width = Math.max(this.minWidth, width);
 
-		if(this.maxWidth){
+		if (this.maxWidth) {
 			width = Math.min(this.maxWidth, width);
 		}
 
@@ -669,77 +669,77 @@ class Column extends CoreFeature{
 
 		this.element.style.width = this.widthStyled;
 
-		if(!this.isGroup){
-			this.cells.forEach(function(cell){
+		if (!this.isGroup) {
+			this.cells.forEach(function (cell) {
 				cell.setWidth();
 			});
 		}
 
-		if(this.parent.isGroup){
+		if (this.parent.isGroup) {
 			this.parent.matchChildWidths();
 		}
 
 		this.dispatch("column-width", this);
 	}
 
-	checkCellHeights(){
+	checkCellHeights() {
 		var rows = [];
 
-		this.cells.forEach(function(cell){
-			if(cell.row.heightInitialized){
-				if(cell.row.getElement().offsetParent !== null){
+		this.cells.forEach(function (cell) {
+			if (cell.row.heightInitialized) {
+				if (cell.row.getElement().offsetParent !== null) {
 					rows.push(cell.row);
 					cell.row.clearCellHeight();
-				}else{
+				} else {
 					cell.row.heightInitialized = false;
 				}
 			}
 		});
 
-		rows.forEach(function(row){
+		rows.forEach(function (row) {
 			row.calcHeight();
 		});
 
-		rows.forEach(function(row){
+		rows.forEach(function (row) {
 			row.setCellHeight();
 		});
 	}
 
-	getWidth(){
+	getWidth() {
 		var width = 0;
 
-		if(this.isGroup){
-			this.columns.forEach(function(column){
-				if(column.visible){
+		if (this.isGroup) {
+			this.columns.forEach(function (column) {
+				if (column.visible) {
 					width += column.getWidth();
 				}
 			});
-		}else{
+		} else {
 			width = this.width;
 		}
 
 		return width;
 	}
 
-	getLeftOffset(){
+	getLeftOffset() {
 		var offset = this.element.offsetLeft;
 
-		if(this.parent.isGroup){
+		if (this.parent.isGroup) {
 			offset += this.parent.getLeftOffset();
 		}
 
 		return offset;
 	}
 
-	getHeight(){
+	getHeight() {
 		return Math.ceil(this.element.getBoundingClientRect().height);
 	}
 
-	setMinWidth(minWidth){
-		if(this.maxWidth && minWidth > this.maxWidth){
+	setMinWidth(minWidth) {
+		if (this.maxWidth && minWidth > this.maxWidth) {
 			minWidth = this.maxWidth;
 
-			console.warn("the minWidth ("+ minWidth + "px) for column '" + this.field + "' cannot be bigger that its maxWidth ("+ this.maxWidthStyled + ")");
+			console.warn("the minWidth (" + minWidth + "px) for column '" + this.field + "' cannot be bigger that its maxWidth (" + this.maxWidthStyled + ")");
 		}
 
 		this.minWidth = minWidth;
@@ -747,16 +747,16 @@ class Column extends CoreFeature{
 
 		this.element.style.minWidth = this.minWidthStyled;
 
-		this.cells.forEach(function(cell){
+		this.cells.forEach(function (cell) {
 			cell.setMinWidth();
 		});
 	}
 
-	setMaxWidth(maxWidth){
-		if(this.minWidth && maxWidth < this.minWidth){
+	setMaxWidth(maxWidth) {
+		if (this.minWidth && maxWidth < this.minWidth) {
 			maxWidth = this.minWidth;
 
-			console.warn("the maxWidth ("+ maxWidth + "px) for column '" + this.field + "' cannot be smaller that its minWidth ("+ this.minWidthStyled + ")");
+			console.warn("the maxWidth (" + maxWidth + "px) for column '" + this.field + "' cannot be smaller that its minWidth (" + this.minWidthStyled + ")");
 		}
 
 		this.maxWidth = maxWidth;
@@ -764,15 +764,15 @@ class Column extends CoreFeature{
 
 		this.element.style.maxWidth = this.maxWidthStyled;
 
-		this.cells.forEach(function(cell){
+		this.cells.forEach(function (cell) {
 			cell.setMaxWidth();
 		});
 	}
 
-	delete(){
+	delete() {
 		return new Promise((resolve, reject) => {
-			if(this.isGroup){
-				this.columns.forEach(function(column){
+			if (this.isGroup) {
+				this.columns.forEach(function (column) {
 					column.delete();
 				});
 			}
@@ -781,11 +781,11 @@ class Column extends CoreFeature{
 
 			var cellCount = this.cells.length;
 
-			for(let i = 0; i < cellCount; i++){
+			for (let i = 0; i < cellCount; i++) {
 				this.cells[0].delete();
 			}
 
-			if(this.element.parentNode){
+			if (this.element.parentNode) {
 				this.element.parentNode.removeChild(this.element);
 			}
 
@@ -794,7 +794,7 @@ class Column extends CoreFeature{
 			this.titleElement = false;
 			this.groupElement = false;
 
-			if(this.parent.isGroup){
+			if (this.parent.isGroup) {
 				this.parent.removeChild(this);
 			}
 
@@ -806,8 +806,8 @@ class Column extends CoreFeature{
 		});
 	}
 
-	columnRendered(){
-		if(this.titleFormatterRendered){
+	columnRendered() {
+		if (this.titleFormatterRendered) {
 			this.titleFormatterRendered();
 		}
 
@@ -816,7 +816,7 @@ class Column extends CoreFeature{
 
 	//////////////// Cell Management /////////////////
 	//generate cell for this column
-	generateCell(row){
+	generateCell(row) {
 		var cell = new Cell(this, row);
 
 		this.cells.push(cell);
@@ -824,31 +824,31 @@ class Column extends CoreFeature{
 		return cell;
 	}
 
-	nextColumn(){
+	nextColumn() {
 		var index = this.table.columnManager.findColumnIndex(this);
 		return index > -1 ? this._nextVisibleColumn(index + 1) : false;
 	}
 
-	_nextVisibleColumn(index){
+	_nextVisibleColumn(index) {
 		var column = this.table.columnManager.getColumnByIndex(index);
 		return !column || column.visible ? column : this._nextVisibleColumn(index + 1);
 	}
 
-	prevColumn(){
+	prevColumn() {
 		var index = this.table.columnManager.findColumnIndex(this);
 		return index > -1 ? this._prevVisibleColumn(index - 1) : false;
 	}
 
-	_prevVisibleColumn(index){
+	_prevVisibleColumn(index) {
 		var column = this.table.columnManager.getColumnByIndex(index);
 		return !column || column.visible ? column : this._prevVisibleColumn(index - 1);
 	}
 
-	reinitializeWidth(force){
+	reinitializeWidth(force) {
 		this.widthFixed = false;
 
 		//set width if present
-		if(typeof this.definition.width !== "undefined" && !force){
+		if (typeof this.definition.width !== "undefined" && !force) {
 			// maxInitialWidth ignored here as width specified
 			this.setWidth(this.definition.width);
 		}
@@ -861,12 +861,12 @@ class Column extends CoreFeature{
 	}
 
 	//set column width to maximum cell width for non group columns
-	fitToData(force){
-		if(this.isGroup){
+	fitToData(force) {
+		if (this.isGroup) {
 			return;
 		}
 
-		if(!this.widthFixed){
+		if (!this.widthFixed) {
 			this.element.style.width = "";
 
 			this.cells.forEach((cell) => {
@@ -876,16 +876,16 @@ class Column extends CoreFeature{
 
 		var maxWidth = this.element.offsetWidth;
 
-		if(!this.width || !this.widthFixed){
+		if (!this.width || !this.widthFixed) {
 			this.cells.forEach((cell) => {
 				var width = cell.getWidth();
 
-				if(width > maxWidth){
+				if (width > maxWidth) {
 					maxWidth = width;
 				}
 			});
 
-			if(maxWidth){
+			if (maxWidth) {
 				var setTo = maxWidth + 1;
 				if (this.maxInitialWidth && !force) {
 					setTo = Math.min(setTo, this.maxInitialWidth);
@@ -895,18 +895,18 @@ class Column extends CoreFeature{
 		}
 	}
 
-	updateDefinition(updates){
+	updateDefinition(updates) {
 		var definition;
 
-		if(!this.isGroup){
-			if(!this.parent.isGroup){
+		if (!this.isGroup) {
+			if (!this.parent.isGroup) {
 				definition = Object.assign({}, this.getDefinition());
 				definition = Object.assign(definition, updates);
 
 				return this.table.columnManager.addColumn(definition, false, this)
 					.then((column) => {
 
-						if(definition.field == this.field){
+						if (definition.field == this.field) {
 							this.field = false; //clear field name to prevent deletion of duplicate column from arrays
 						}
 
@@ -916,27 +916,27 @@ class Column extends CoreFeature{
 							});
 
 					});
-			}else{
+			} else {
 				console.error("Column Update Error - The updateDefinition function is only available on ungrouped columns");
 				return Promise.reject("Column Update Error - The updateDefinition function is only available on columns, not column groups");
 			}
-		}else{
+		} else {
 			console.error("Column Update Error - The updateDefinition function is only available on ungrouped columns");
 			return Promise.reject("Column Update Error - The updateDefinition function is only available on columns, not column groups");
 		}
 	}
 
-	deleteCell(cell){
+	deleteCell(cell) {
 		var index = this.cells.indexOf(cell);
 
-		if(index > -1){
+		if (index > -1) {
 			this.cells.splice(index, 1);
 		}
 	}
 
 	//////////////// Object Generation /////////////////
-	getComponent(){
-		if(!this.component){
+	getComponent() {
+		if (!this.component) {
 			this.component = new ColumnComponent(this);
 		}
 

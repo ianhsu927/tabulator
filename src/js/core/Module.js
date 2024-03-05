@@ -1,142 +1,161 @@
+/**
+ * 模块的基类
+ */
 import CoreFeature from './CoreFeature.js';
 import Popup from './tools/Popup.js';
 
-class Module extends CoreFeature{
-	
-	constructor(table, name){
+class Module extends CoreFeature {
+
+	constructor(table, name) {
 		super(table);
-		
+
 		this._handler = null;
 	}
-	
-	initialize(){
-		// setup module when table is initialized, to be overridden in module
+
+	initialize() {
+		// 默认空
+		// 设置模块，当表格初始化时，将在模块中覆盖
 	}
-	
-	
+
+
 	///////////////////////////////////
 	////// Options Registration ///////
 	///////////////////////////////////
-	
-	registerTableOption(key, value){
+
+	// 注册模块选项
+	registerTableOption(key, value) {
 		this.table.optionsList.register(key, value);
 	}
-	
-	registerColumnOption(key, value){
+
+	// 注册列选项
+	registerColumnOption(key, value) {
 		this.table.columnManager.optionsList.register(key, value);
 	}
-	
+
 	///////////////////////////////////
 	/// Public Function Registration ///
 	///////////////////////////////////
-	
-	registerTableFunction(name, func){
-		if(typeof this.table[name] === "undefined"){
+
+	// 注册公共函数
+	registerTableFunction(name, func) {
+		if (typeof this.table[name] === "undefined") {
 			this.table[name] = (...args) => {
 				this.table.initGuard(name);
-				
+
 				return func(...args);
 			};
-		}else{
+		} else {
 			console.warn("Unable to bind table function, name already in use", name);
 		}
 	}
-	
-	registerComponentFunction(component, func, handler){
+
+	// 注册组件函数
+	registerComponentFunction(component, func, handler) {
 		return this.table.componentFunctionBinder.bind(component, func, handler);
 	}
-	
+
 	///////////////////////////////////
 	////////// Data Pipeline //////////
 	///////////////////////////////////
-	
-	registerDataHandler(handler, priority){
+
+	// 注册数据处理器
+	registerDataHandler(handler, priority) {
 		this.table.rowManager.registerDataPipelineHandler(handler, priority);
 		this._handler = handler;
 	}
-	
-	registerDisplayHandler(handler, priority){
+
+	// 注册显示处理器
+	registerDisplayHandler(handler, priority) {
 		this.table.rowManager.registerDisplayPipelineHandler(handler, priority);
 		this._handler = handler;
 	}
-	
-	displayRows(adjust){
-		var index = this.table.rowManager.displayRows.length - 1, 
-		lookupIndex;
-		
-		if(this._handler){
+
+	// 显示行
+	displayRows(adjust) {
+		var index = this.table.rowManager.displayRows.length - 1,
+			lookupIndex;
+
+		if (this._handler) {
 			lookupIndex = this.table.rowManager.displayPipeline.findIndex((item) => {
 				return item.handler === this._handler;
 			});
 
-			if(lookupIndex > -1){
+			if (lookupIndex > -1) {
 				index = lookupIndex;
 			}
 		}
-		
-		if(adjust){
+
+		if (adjust) {
 			index = index + adjust;
 		}
 
-		if(this._handler){
-			if(index > -1){
+		if (this._handler) {
+			if (index > -1) {
 				return this.table.rowManager.getDisplayRows(index);
-			}else{
+			} else {
 				return this.activeRows();
 			}
-		}	
+		}
 	}
-	
-	activeRows(){
+
+	// 活动行
+	activeRows() {
 		return this.table.rowManager.activeRows;
 	}
-	
-	refreshData(renderInPosition, handler){
-		if(!handler){
+
+	// 刷新数据
+	refreshData(renderInPosition, handler) {
+		if (!handler) {
 			handler = this._handler;
 		}
-		
-		if(handler){
+
+		if (handler) {
 			this.table.rowManager.refreshActiveData(handler, false, renderInPosition);
 		}
 	}
-	
+
 	///////////////////////////////////
 	//////// Footer Management ////////
 	///////////////////////////////////
-	
-	footerAppend(element){
+
+	// 添加页脚
+	footerAppend(element) {
 		return this.table.footerManager.append(element);
 	}
-	
-	footerPrepend(element){
+
+	// 前置页脚
+	footerPrepend(element) {
 		return this.table.footerManager.prepend(element);
 	}
-	
-	footerRemove(element){
+
+	// 删除页脚
+	footerRemove(element) {
 		return this.table.footerManager.remove(element);
-	} 
-	
+	}
+
 	///////////////////////////////////
 	//////// Popups Management ////////
 	///////////////////////////////////
-	
-	popup(menuEl, menuContainer){
+
+	// 创建弹出框
+	popup(menuEl, menuContainer) {
 		return new Popup(this.table, menuEl, menuContainer);
 	}
-	
+
 	///////////////////////////////////
 	//////// Alert Management ////////
 	///////////////////////////////////
-	
-	alert(content, type){
+
+	// 弹出警告
+	alert(content, type) {
 		return this.table.alertManager.alert(content, type);
 	}
-	
-	clearAlert(){
+
+	// 清除警告
+	clearAlert() {
 		return this.table.alertManager.clear();
 	}
-	
+
 }
 
 export default Module;

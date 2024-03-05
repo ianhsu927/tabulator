@@ -1,69 +1,71 @@
-//public group object
+// 公开的 group 对象
 class GroupComponent {
-	constructor (group){
+	constructor(group) {
 		this._group = group;
 		this.type = "GroupComponent";
 
+		// 代理
 		return new Proxy(this, {
-			get: function(target, name, receiver) {
+			// 拦截对象的读取属性操作
+			get: function (target, name, receiver) {
 				if (typeof target[name] !== "undefined") {
 					return target[name];
-				}else{
+				} else {
 					return target._group.groupManager.table.componentFunctionBinder.handle("group", target._group, name);
 				}
 			}
 		});
 	}
 
-	getKey(){
+	getKey() {
 		return this._group.key;
 	}
 
-	getField(){
+	getField() {
 		return this._group.field;
 	}
 
-	getElement(){
+	getElement() {
 		return this._group.element;
 	}
 
-	getRows(){
+	getRows() {
 		return this._group.getRows(true);
 	}
 
-	getSubGroups(){
+	getSubGroups() {
 		return this._group.getSubGroups(true);
 	}
 
-	getParentGroup(){
+	getParentGroup() {
 		return this._group.parent ? this._group.parent.getComponent() : false;
 	}
 
-	isVisible(){
+	isVisible() {
 		return this._group.visible;
 	}
 
-	show(){
+	show() {
 		this._group.show();
 	}
 
-	hide(){
+	hide() {
 		this._group.hide();
 	}
 
-	toggle(){
+	toggle() {
 		this._group.toggleVisibility();
 	}
 
-	scrollTo(position, ifVisible){
+	scrollTo(position, ifVisible) {
 		return this._group.groupManager.table.rowManager.scrollToRow(this._group, position, ifVisible);
 	}
 
-	_getSelf(){
+	_getSelf() {
 		return this._group;
 	}
 
-	getTable(){
+	getTable() {
 		return this._group.groupManager.table;
 	}
 }

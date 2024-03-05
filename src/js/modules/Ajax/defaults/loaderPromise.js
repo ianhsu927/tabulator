@@ -1,85 +1,84 @@
-export default function(url, config, params){
+// 构造一个 fetch Promise 对象，用于处理 ajax 请求
+export default function (url, config, params) {
 	var contentType;
-
 	return new Promise((resolve, reject) => {
-		//set url
+		// 生成请求地址
 		url = this.urlGenerator.call(this.table, url, config, params);
 
-		//set body content if not GET request
-		if(config.method.toUpperCase() != "GET"){
-			contentType = typeof this.table.options.ajaxContentType === "object" ?  this.table.options.ajaxContentType : this.contentTypeFormatters[this.table.options.ajaxContentType];
-			if(contentType){
-
-				for(var key in contentType.headers){
-					if(!config.headers){
+		// 非 GET 请求时设置 body content
+		if (config.method.toUpperCase() != "GET") {
+			contentType =
+				typeof this.table.options.ajaxContentType === "object"
+					? this.table.options.ajaxContentType
+					: this.contentTypeFormatters[this.table.options.ajaxContentType];
+			if (contentType) {
+				for (var key in contentType.headers) {
+					if (!config.headers) {
 						config.headers = {};
 					}
-
-					if(typeof config.headers[key] === "undefined"){
+					if (typeof config.headers[key] === "undefined") {
 						config.headers[key] = contentType.headers[key];
 					}
 				}
-
 				config.body = contentType.body.call(this, url, config, params);
-
-			}else{
+			} else {
 				console.warn("Ajax Error - Invalid ajaxContentType value:", this.table.options.ajaxContentType);
 			}
 		}
 
-		if(url){
-			//configure headers
-			if(typeof config.headers === "undefined"){
+		if (url) {
+			// 设置 headers
+			if (typeof config.headers === "undefined") {
 				config.headers = {};
 			}
 
-			if(typeof config.headers.Accept === "undefined"){
+			if (typeof config.headers.Accept === "undefined") {
 				config.headers.Accept = "application/json";
 			}
 
-			if(typeof config.headers["X-Requested-With"] === "undefined"){
+			if (typeof config.headers["X-Requested-With"] === "undefined") {
 				config.headers["X-Requested-With"] = "XMLHttpRequest";
 			}
 
-			if(typeof config.mode === "undefined"){
+			if (typeof config.mode === "undefined") {
 				config.mode = "cors";
 			}
 
-			if(config.mode == "cors"){
-				if(typeof config.headers["Origin"] === "undefined"){
+			if (config.mode == "cors") {
+				if (typeof config.headers["Origin"] === "undefined") {
 					config.headers["Origin"] = window.location.origin;
 				}
-        
-				if(typeof config.credentials === "undefined"){
+
+				if (typeof config.credentials === "undefined") {
 					config.credentials = 'same-origin';
 				}
-			}else{
-				if(typeof config.credentials === "undefined"){
+			} else {
+				if (typeof config.credentials === "undefined") {
 					config.credentials = 'include';
 				}
 			}
 
-			//send request
+			// 发送请求
 			fetch(url, config)
-				.then((response)=>{
-					if(response.ok) {
+				.then((response) => {
+					if (response.ok) {
 						response.json()
-							.then((data)=>{
+							.then((data) => {
 								resolve(data);
-							}).catch((error)=>{
+							}).catch((error) => {
 								reject(error);
 								console.warn("Ajax Load Error - Invalid JSON returned", error);
 							});
-					}else{
+					} else {
 						console.error("Ajax Load Error - Connection Error: " + response.status, response.statusText);
 						reject(response);
 					}
 				})
-				.catch((error)=>{
+				.catch((error) => {
 					console.error("Ajax Load Error - Connection Error: ", error);
 					reject(error);
 				});
-		}else{
+		} else {
 			console.warn("Ajax Load Error - No URL Set");
 			resolve([]);
 		}

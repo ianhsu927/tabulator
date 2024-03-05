@@ -1,133 +1,138 @@
 import Module from '../../core/Module.js';
 
-import defaultConfig from './defaults/config.js';
+import defaultConfig from './defaults/config.js';	// 默认 GET
 import defaultURLGenerator from './defaults/urlGenerator.js';
 import defaultLoaderPromise from './defaults/loaderPromise.js';
 import defaultContentTypeFormatters from './defaults/contentTypeFormatters.js';
 
-class Ajax extends Module{
-	
-	constructor(table){
+class Ajax extends Module {
+
+	constructor(table) {
 		super(table);
-		
-		this.config = {}; //hold config object for ajax request
-		this.url = ""; //request URL
+
+		this.config = {}; // 持有用于AJAX请求的配置对象
+		this.url = ""; // 请求 URL
 		this.urlGenerator = false;
-		this.params = false; //request parameters
-		
+		this.params = false; // 请求参数
+
 		this.loaderPromise = false;
-		
-		this.registerTableOption("ajaxURL", false); //url for ajax loading
+
+		this.registerTableOption("ajaxURL", false); // 用于 ajax 加载的 URL
 		this.registerTableOption("ajaxURLGenerator", false);
-		this.registerTableOption("ajaxParams", {});  //params for ajax loading
-		this.registerTableOption("ajaxConfig", "get"); //ajax request type
-		this.registerTableOption("ajaxContentType", "form"); //ajax request type
-		this.registerTableOption("ajaxRequestFunc", false); //promise function
-		
-		this.registerTableOption("ajaxRequesting", function(){});
+		this.registerTableOption("ajaxParams", {});  // 用于 ajax 加载的参数
+		this.registerTableOption("ajaxConfig", "get"); // ajax 请求方法
+		this.registerTableOption("ajaxContentType", "form"); // ajax 请求类型
+		this.registerTableOption("ajaxRequestFunc", false); // promise 函数
+
+		this.registerTableOption("ajaxRequesting", function () { });
 		this.registerTableOption("ajaxResponse", false);
-		
+
 		this.contentTypeFormatters = Ajax.contentTypeFormatters;
 	}
-	
-	//initialize setup options
-	initialize(){
+
+	// 初始化设置选项
+	initialize() {
+		// 使用自定义的 ajax 请求函数 or url 构造器
 		this.loaderPromise = this.table.options.ajaxRequestFunc || Ajax.defaultLoaderPromise;
 		this.urlGenerator = this.table.options.ajaxURLGenerator || Ajax.defaultURLGenerator;
-		
-		if(this.table.options.ajaxURL){
+
+		// 如果存在 ajaxURL, 则设置请求 URL
+		if (this.table.options.ajaxURL) {
 			this.setUrl(this.table.options.ajaxURL);
 		}
 
 
 		this.setDefaultConfig(this.table.options.ajaxConfig);
-		
+
 		this.registerTableFunction("getAjaxUrl", this.getUrl.bind(this));
-		
+
 		this.subscribe("data-loading", this.requestDataCheck.bind(this));
 		this.subscribe("data-params", this.requestParams.bind(this));
 		this.subscribe("data-load", this.requestData.bind(this));
 	}
-	
-	requestParams(data, config, silent, params){
+
+	// 请求参数, 合并了 ajaxParams 和 params
+	requestParams(data, config, silent, params) {
 		var ajaxParams = this.table.options.ajaxParams;
-		
-		if(ajaxParams){
-			if(typeof ajaxParams === "function"){
+
+		if (ajaxParams) {
+			if (typeof ajaxParams === "function") {	// ajaxParams 可以是函数?
 				ajaxParams = ajaxParams.call(this.table);
 			}
-			
 			params = Object.assign(Object.assign({}, ajaxParams), params);
-		}		
-		
+		}
+
 		return params;
 	}
-	
-	requestDataCheck(data, params, config, silent){
+
+	// 请求数据检查
+	requestDataCheck(data, params, config, silent) {
+		// !! 可以用于判断是否存在 URL, 返回值一定是布尔值
 		return !!((!data && this.url) || typeof data === "string");
 	}
-	
-	requestData(url, params, config, silent, previousData){
+
+	// 请求数据
+	requestData(url, params, config, silent, previousData) {
 		var ajaxConfig;
-		
-		if(!previousData && this.requestDataCheck(url)){
-			if(url){
+
+		if (!previousData && this.requestDataCheck(url)) {
+			if (url) {
 				this.setUrl(url);
 			}
-			
+
 			ajaxConfig = this.generateConfig(config);
-			
+
 			return this.sendRequest(this.url, params, ajaxConfig);
-		}else{
+		} else {
 			return previousData;
 		}
 	}
-	
-	setDefaultConfig(config = {}){
+
+	setDefaultConfig(config = {}) {
 		this.config = Object.assign({}, Ajax.defaultConfig);
 
-		if(typeof config == "string"){
+		if (typeof config == "string") {
 			this.config.method = config;
-		}else{
+		} else {
 			Object.assign(this.config, config);
 		}
 	}
-	
+
 	//load config object
-	generateConfig(config = {}){
+	generateConfig(config = {}) {
 		var ajaxConfig = Object.assign({}, this.config);
-		
-		if(typeof config == "string"){
+
+		if (typeof config == "string") {
 			ajaxConfig.method = config;
-		}else{
+		} else {
 			Object.assign(ajaxConfig, config);
 		}
-		
+
 		return ajaxConfig;
 	}
-	
+
 	//set request url
-	setUrl(url){
+	setUrl(url) {
 		this.url = url;
 	}
-	
+
 	//get request url
-	getUrl(){
+	getUrl() {
 		return this.url;
 	}
-	
-	//send ajax request
-	sendRequest(url, params, config){
-		if(this.table.options.ajaxRequesting.call(this.table, url, params) !== false){
+
+	// 发送 ajax 请求
+	sendRequest(url, params, config) {
+		if (this.table.options.ajaxRequesting.call(this.table, url, params) !== false) {
 			return this.loaderPromise(url, config, params)
-				.then((data)=>{
-					if(this.table.options.ajaxResponse){
+				.then((data) => {
+					// 如果存在自定义的 ajaxResponse 函数, 则调用
+					if (this.table.options.ajaxResponse) {
 						data = this.table.options.ajaxResponse.call(this.table, url, params, data);
 					}
-				
 					return data;
 				});
-		}else{
+		} else {
 			return Promise.reject();
 		}
 	}
@@ -135,7 +140,7 @@ class Ajax extends Module{
 
 Ajax.moduleName = "ajax";
 
-//load defaults
+// 加载默认值
 Ajax.defaultConfig = defaultConfig;
 Ajax.defaultURLGenerator = defaultURLGenerator;
 Ajax.defaultLoaderPromise = defaultLoaderPromise;
