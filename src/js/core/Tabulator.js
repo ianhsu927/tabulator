@@ -287,6 +287,7 @@ class Tabulator {
 
 	_loadInitialData() {
 		this.dataLoader.load(this.options.data);
+		this.columnManager.verticalAlignHeaders();
 	}
 
 	// 摧毁表格
@@ -852,7 +853,7 @@ class Tabulator {
 		this.options.height = isNaN(height) ? height : height + "px";
 		this.element.style.height = this.options.height;
 		this.rowManager.initializeRenderer();
-		this.rowManager.redraw();
+		this.rowManager.redraw(true);
 	}
 
 	//////////////////// Event Bus ///////////////////

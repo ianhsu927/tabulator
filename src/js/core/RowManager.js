@@ -344,7 +344,7 @@ export default class RowManager extends CoreFeature {
 
 			this.regenerateRowPositions();
 
-			if (rows.length) {
+			if (this.displayRowsCount) {
 				this._clearPlaceholder();
 			}
 
@@ -974,6 +974,14 @@ export default class RowManager extends CoreFeature {
 		this._showPlaceholder();
 	}
 
+	checkPlaceholder() {
+		if (this.displayRowsCount) {
+			this._clearPlaceholder();
+		} else {
+			this.tableEmpty();
+		}
+	}
+
 	_showPlaceholder() {
 		if (this.placeholder) {
 			if (this.placeholder && this.placeholder.parentNode) {
@@ -1101,13 +1109,11 @@ export default class RowManager extends CoreFeature {
 
 	//redraw table
 	redraw(force) {
-		const resized = this.adjustTableSize();
+		this.adjustTableSize();
 		this.table.tableWidth = this.table.element.clientWidth;
 
 		if (!force) {
-			if (resized) {
-				this.reRenderInPosition();
-			}
+			this.reRenderInPosition();
 			this.scrollHorizontal(this.scrollLeft);
 		} else {
 			this.renderTable();
