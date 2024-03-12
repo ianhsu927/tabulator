@@ -50,6 +50,7 @@ class DataTree extends Module {
 			this.indent = options.dataTreeChildIndent;
 
 			if (this.options("movableRows")) {
+				// 可移动行在启用数据树时不可用, 移动子行可能导致不可预测的行为
 				console.warn("The movableRows option is not available with dataTree enabled, moving of child rows could result in unpredictable behavior");
 			}
 
